@@ -6,8 +6,8 @@
     <PackageReference Include="Autofac" Version="4.6.2" />
     <PackageReference Include="AzureFunctions.Autofac" Version="2.0.0" />
     <PackageReference Include="MediatR" Version="4.1.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="1.1.0" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.0.3" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.10" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
@@ -21,9 +21,6 @@
     <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-    </None>
-    <None Update="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
     </None>
   </ItemGroup>
 </Project>
