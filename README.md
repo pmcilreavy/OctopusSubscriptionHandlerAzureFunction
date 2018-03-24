@@ -1,0 +1,4 @@
+# OctopusSubscriptionHandlerAzureFunction
+An Azure function which can handle Octopus Deploy subscription event messages and forward them on to, for now just, Slack (but you could implement another one).
+
+Octopus Deploy generates an "event" when things happen (e.g. a failed or successful deployment). You can nominate a url that Octopus will POST the json data of the subscription event to. The json is in a propietary format which can't be understood easily by the typical places you'd want to send such data to (e.g. Slack). You can use an intermediary like Zapier to do the transform but it's a bit of a hassle. This azure function can be configured as the receiver of the Octopus event and will in-turn parse the json, re-format it into the Slack format and forward on to a nominated Slack web hook url. Other downstream handlers (other than Slack) could be easily implemented.
