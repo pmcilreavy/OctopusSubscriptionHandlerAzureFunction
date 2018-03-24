@@ -264,5 +264,5 @@ __pycache__/
 *.pyc
 /OctopusSubscriptionHandler/Properties/PublishProfiles/
 /OctopusSubscriptionHandler/Properties/*.json
-/Curl_Test/
+Curl_Test/
 /OctopusSubscriptionHandler/host.json
