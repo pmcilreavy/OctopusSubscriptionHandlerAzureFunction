@@ -264,5 +264,5 @@ __pycache__/
 *.pyc
 /OctopusSubscriptionHandler/Properties/PublishProfiles/
 /OctopusSubscriptionHandler/Properties/*.json
-/Curl_Test/test_with_azure_*.bat
+/Curl_Test/
 /OctopusSubscriptionHandler/host.json
