@@ -4,7 +4,7 @@ namespace OctopusSubscriptionHandler.Models.Slack
 {
     public class Attachment
     {
-        [JsonProperty("Fallback")]
+        [JsonProperty("fallback")]
         public string Fallback { get; set; }
 
         [JsonProperty("color")]
@@ -22,7 +22,7 @@ namespace OctopusSubscriptionHandler.Models.Slack
         [JsonProperty("footer_icon")]
         public string FooterIcon { get; set; }
 
-        [JsonProperty("SecondsSinceUnixEpoch")]
+        [JsonProperty("ts")]
         public long SecondsSinceUnixEpoch { get; set; }
     }
 }
