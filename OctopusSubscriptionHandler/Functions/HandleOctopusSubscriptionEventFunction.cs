@@ -9,39 +9,59 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Azure.WebJobs.Host;
 using OctopusSubscriptionHandler.Exceptions;
 using OctopusSubscriptionHandler.Messages;
+using OctopusSubscriptionHandler.Utility;
+using Serilog;
+using Serilog.Sinks.AzureWebJobsTraceWriter;
 
 namespace OctopusSubscriptionHandler.Functions
 {
-    [DependencyInjectionConfig(typeof(DIConfig))]
+    [DependencyInjectionConfig(typeof(IoC))]
     public static class HandleOctopusSubscriptionEventFunction
     {
         [FunctionName("HandleOctopusSubscriptionEventFunction")]
         public static async Task<HttpResponseMessage> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)]
             HttpRequestMessage req,
-            TraceWriter logger,
+            TraceWriter traceWriter,
             [Inject] IMediator mediator)
         {
             try
             {
-                logger.Info($"Triggered");
+                ConfigureSerilog(req, traceWriter);
 
-                var ok = await mediator.Send(new IncomingOctopusSubscriptionEventRequest(req, logger));
+                Log.Information("Function triggered.");
 
-                logger.Info("Done :)");
+                var ok = await mediator.Send(new IncomingOctopusSubscriptionEventRequest(req));
+
+                Log.Information("Done.");
 
                 return req.CreateResponse(HttpStatusCode.OK, ":)");
             }
             catch (BadRequestException ex)
             {
+                Log.Error("Bad request", ex);
+
                 return req.CreateResponse(HttpStatusCode.BadRequest, $":( '{ex.Message}'");
             }
             catch (Exception ex)
             {
-                logger.Error("Fail :(", ex);
+                Log.Error("General exception", ex);
 
-                return req.CreateResponse(HttpStatusCode.InternalServerError, ":(");
+                return req.CreateResponse(HttpStatusCode.InternalServerError, $":( '{ex.Message}'");
             }
+        }
+
+        private static void ConfigureSerilog(
+            HttpRequestMessage req,
+            TraceWriter traceWriter)
+        {
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Verbose()
+                .Enrich.FromLogContext()
+                .Enrich.WithProperty("RequestId", req.GetCorrelationId())
+                .Enrich.WithProperty("ClientIpAddress", req.GetClientIpAddress())
+                .WriteTo.TraceWriter(traceWriter, outputTemplate: "{Timestamp}: [{Level}] \"{Message}\" {Properties}{NewLine}{Exception}")
+                .CreateLogger();
         }
     }
 }

@@ -1,17 +1,16 @@
 using System;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.ServiceModel.Channels;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using MediatR;
 using Newtonsoft.Json;
 using OctopusSubscriptionHandler.Exceptions;
 using OctopusSubscriptionHandler.Messages;
 using OctopusSubscriptionHandler.Models.Octopus;
-using OctopusSubscriptionHandler.Utils;
+using OctopusSubscriptionHandler.Utility;
+using Serilog;
+using Serilog.Context;
 
 namespace OctopusSubscriptionHandler.MessageHandlers
 {
@@ -24,8 +23,10 @@ namespace OctopusSubscriptionHandler.MessageHandlers
             _mediator = mediator;
         }
 
-        public async Task<bool> Handle(IncomingOctopusSubscriptionEventRequest notification,
-            CancellationToken cancellationToken)
+        public async Task<bool> Handle(
+            IncomingOctopusSubscriptionEventRequest notification,
+            CancellationToken cancellationToken
+            )
         {
             if (notification?.Request == null)
             {
@@ -36,10 +37,8 @@ namespace OctopusSubscriptionHandler.MessageHandlers
 
             var incomingJson = await ValidateAndRetrieveIncomingJson(notification.Request);
             var octopusSubscriptionEvent = GetEventObject(incomingJson);
-            var requestId = notification.Request.GetCorrelationId();
-            var clientIp = GetClientIp(notification.Request);
 
-            await _mediator.Publish(new NewOctopusSubscriptionEventReceived(requestId, clientIp, octopusSubscriptionEvent, notification.Logger), cancellationToken);
+            await _mediator.Publish(new NewOctopusSubscriptionEventReceived(octopusSubscriptionEvent), cancellationToken);
 
             return true;
         }
@@ -47,10 +46,13 @@ namespace OctopusSubscriptionHandler.MessageHandlers
         private static async Task<string> ValidateAndRetrieveIncomingJson(HttpRequestMessage request)
         {
             var incomingJson = await request.Content.ReadAsStringAsync();
+
             if (string.IsNullOrWhiteSpace(incomingJson))
             {
                 throw new BadRequestException("Incoming content string was null or empty!");
             }
+
+            Log.Information(incomingJson);
 
             return incomingJson;
         }
@@ -70,43 +72,28 @@ namespace OctopusSubscriptionHandler.MessageHandlers
 
                 if (!string.IsNullOrWhiteSpace(token) && token == Util.GetEnvironmentVariable("TOKEN"))
                 {
+                    Log.Information("Subscription token matched successfully {Token}", token);
                     return;
                 }
+
+                Log.Warning("Received token did not match {Token}", token);
             }
 
             throw new BadRequestException("Incoming request did not contain a valid event token.");
         }
 
-        private static OctopusEvent GetEventObject(string incomingJson)
+        private static OctopusSubscriptionEvent GetEventObject(string incomingJson)
         {
-            OctopusEvent octopusSubscriptionEvent = null;
-
             try
             {
-                octopusSubscriptionEvent = JsonConvert.DeserializeObject<OctopusEvent>(incomingJson);
+                var octopusSubscriptionEventEvent = JsonConvert.DeserializeObject<OctopusSubscriptionEvent>(incomingJson);
+
+                return octopusSubscriptionEventEvent;
             }
             catch (Exception ex)
             {
                 throw new BadRequestException("Failed to deserialize incoming json.", ex);
             }
-
-            return octopusSubscriptionEvent;
-        }
-
-        private static IPAddress GetClientIp(HttpRequestMessage request)
-        {
-            if (request.Properties.ContainsKey("MS_HttpContext"))
-            {
-                return IPAddress.Parse(((HttpContextWrapper)request?.Properties["MS_HttpContext"])?.Request?.UserHostAddress);
-            }
-
-            if (request.Properties.ContainsKey(RemoteEndpointMessageProperty.Name))
-            {
-                var prop = (RemoteEndpointMessageProperty)request.Properties[RemoteEndpointMessageProperty.Name];
-                return IPAddress.Parse(prop.Address);
-            }
-
-            return null;
         }
     }
 }

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace OctopusSubscriptionHandler.Models.Octopus
 {
-    public class OctopusEvent
+    public class OctopusSubscriptionEvent
     {
         [JsonProperty("Timestamp")]
         public DateTime Timestamp { get; set; }

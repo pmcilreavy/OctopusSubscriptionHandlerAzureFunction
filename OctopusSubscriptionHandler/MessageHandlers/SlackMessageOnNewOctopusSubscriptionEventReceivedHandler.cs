@@ -9,8 +9,9 @@ using MediatR;
 using Newtonsoft.Json;
 using OctopusSubscriptionHandler.Messages;
 using OctopusSubscriptionHandler.Models.Octopus;
-using OctopusSubscriptionHandler.Models.Slack.Models;
-using OctopusSubscriptionHandler.Utils;
+using OctopusSubscriptionHandler.Models.Slack;
+using OctopusSubscriptionHandler.Utility;
+using Serilog;
 
 namespace OctopusSubscriptionHandler.MessageHandlers
 {
@@ -18,7 +19,7 @@ namespace OctopusSubscriptionHandler.MessageHandlers
     {
         public Task Handle(NewOctopusSubscriptionEventReceived notification, CancellationToken cancellationToken)
         {
-            var octopusEvent = notification.SubscriptionEvent;
+            var octopusEvent = notification.SubscriptionEventEvent;
 
             var message = octopusEvent.Payload.Event.Message.Replace("  ", " ").Trim().TrimEnd('.') + ".";
             var category = octopusEvent.Payload.Event.Category;
@@ -41,23 +42,30 @@ namespace OctopusSubscriptionHandler.MessageHandlers
         private static SlackPayload BuildSlackPayload(string message,
             string username,
             string category,
-            OctopusEvent octopusEvent)
+            OctopusSubscriptionEvent octopusEvent)
         {
+            var slackChannelName = Util.GetEnvironmentVariable("SLACK_CHANNEL_NAME");
+
+            if (string.IsNullOrWhiteSpace(slackChannelName))
+            {
+                throw new InvalidOperationException("SLACK_CHANNEL_NAME is not set!");
+            }
+
             var slackMsg = new SlackPayload
             {
-                channel = "#paul-test",
-                attachments = new List<Attachment>
+                Channel = slackChannelName,
+                Attachments = new List<Attachment>
                 {
                     new Attachment
                     {
-                        color = "#5C91DC",
-                        fallback = message,
-                        footer = username,
-                        footer_icon =
+                        Color = "#5C91DC",
+                        Fallback = message,
+                        Footer = username,
+                        FooterIcon =
                             "https://emojipedia-us.s3.amazonaws.com/thumbs/240/microsoft/106/face-with-cowboy-hat_1f920.png",
-                        pretext = category,
-                        text = message,
-                        ts = ToUnixTime(octopusEvent.Payload.Event.Occurred.ToUniversalTime())
+                        Pretext = category,
+                        Text = message,
+                        SecondsSinceUnixEpoch = ToUnixTime(octopusEvent.Payload.Event.Occurred.ToUniversalTime())
                     }
                 }
             };
@@ -65,27 +73,37 @@ namespace OctopusSubscriptionHandler.MessageHandlers
             return slackMsg;
         }
 
-        private static string SendToSlack(SlackPayload o,
+        private static string SendToSlack(
+            SlackPayload o,
             string slackHookUrl)
         {
-            var hookJson = JsonConvert.SerializeObject(o);
-
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(slackHookUrl);
-            httpWebRequest.ContentType = "application/json";
-            httpWebRequest.Method = "POST";
-
-            using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+            try
             {
-                streamWriter.Write(hookJson);
-                streamWriter.Flush();
-                streamWriter.Close();
+                var hookJson = JsonConvert.SerializeObject(o, Formatting.None);
+                Log.Information("Posting Slack json {slackMessageJson} to {SlackWebHookUrl}", hookJson, slackHookUrl);
+
+                var httpWebRequest = (HttpWebRequest)WebRequest.Create(slackHookUrl);
+                httpWebRequest.ContentType = "application/json";
+                httpWebRequest.Method = "POST";
+                httpWebRequest.Timeout = 30000;
+                httpWebRequest.ReadWriteTimeout = 30000;
+
+                using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                {
+                    streamWriter.Write(hookJson);
+                    streamWriter.Flush();
+                }
+
+                using (var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse())
+                using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+                {
+                    return streamReader.ReadToEnd();
+                }
             }
-
-            var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-
-            using (var streamReader = new StreamReader(httpResponse.GetResponseStream()))
+            catch (Exception e)
             {
-                return streamReader.ReadToEnd();
+                Log.Error(e, "Failed to send message to Slack.");
+                throw;
             }
         }
 

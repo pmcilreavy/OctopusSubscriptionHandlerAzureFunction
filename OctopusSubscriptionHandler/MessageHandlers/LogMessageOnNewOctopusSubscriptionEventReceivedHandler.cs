@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using OctopusSubscriptionHandler.Messages;
+using Serilog;
 
 namespace OctopusSubscriptionHandler.MessageHandlers
 {
@@ -9,7 +10,7 @@ namespace OctopusSubscriptionHandler.MessageHandlers
     {
         public Task Handle(NewOctopusSubscriptionEventReceived notification, CancellationToken cancellationToken)
         {
-            notification.Logger.Info(notification.SubscriptionEvent.Payload.Event.Message);
+            Log.Information(notification.SubscriptionEventEvent.Payload.Event.Message);
 
             return Task.CompletedTask;
         }
