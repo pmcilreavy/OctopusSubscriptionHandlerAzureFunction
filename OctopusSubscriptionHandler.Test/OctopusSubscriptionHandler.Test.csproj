@@ -45,6 +45,9 @@
     <Reference Include="MediatR, Version=4.1.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MediatR.4.1.0\lib\net45\MediatR.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.Azure.WebJobs.Host, Version=2.1.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\..\..\..\..\..\.nuget\packages\microsoft.azure.webjobs\2.1.0\lib\net45\Microsoft.Azure.WebJobs.Host.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Azure.WebJobs.Host, Version=3.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\.nuget\packages\microsoft.azure.webjobs\3.0.0-beta3\lib\netstandard2.0\Microsoft.Azure.WebJobs.Host.dll</HintPath>
