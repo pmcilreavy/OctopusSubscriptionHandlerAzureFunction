@@ -3,9 +3,8 @@ using System.Reflection;
 using Autofac;
 using AzureFunctions.Autofac.Configuration;
 using MediatR;
-using OctopusSubscriptionHandler.Functions;
 
-namespace OctopusSubscriptionHandler.Utility
+namespace OctopusSubscriptionHandler.Core.Utility
 {
     public class IoC
     {
@@ -16,7 +15,7 @@ namespace OctopusSubscriptionHandler.Utility
                 {
                     RegisterMediatR(builder);
 
-                    builder.RegisterAssemblyTypes(typeof(HandleOctopusSubscriptionEventFunction).GetTypeInfo().Assembly)
+                    builder.RegisterAssemblyTypes(typeof(IoC).GetTypeInfo().Assembly)
                         .AsImplementedInterfaces();
                 });
         }

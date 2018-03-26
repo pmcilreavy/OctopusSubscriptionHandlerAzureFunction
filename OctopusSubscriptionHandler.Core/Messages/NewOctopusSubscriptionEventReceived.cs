@@ -1,7 +1,7 @@
 using MediatR;
-using OctopusSubscriptionHandler.Models.Octopus;
+using OctopusSubscriptionHandler.Core.Models.Octopus;
 
-namespace OctopusSubscriptionHandler.Messages
+namespace OctopusSubscriptionHandler.Core.Messages
 {
     public class NewOctopusSubscriptionEventReceived : INotification
     {

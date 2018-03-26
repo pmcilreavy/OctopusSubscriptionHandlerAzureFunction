@@ -7,13 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json;
-using OctopusSubscriptionHandler.Messages;
-using OctopusSubscriptionHandler.Models.Octopus;
-using OctopusSubscriptionHandler.Models.Slack;
-using OctopusSubscriptionHandler.Utility;
+using OctopusSubscriptionHandler.Core.Messages;
+using OctopusSubscriptionHandler.Core.Models.Octopus;
+using OctopusSubscriptionHandler.Core.Models.Slack;
+using OctopusSubscriptionHandler.Core.Utility;
 using Serilog;
 
-namespace OctopusSubscriptionHandler.MessageHandlers
+namespace OctopusSubscriptionHandler.Core.MessageHandlers
 {
     public class SlackMessageOnNewOctopusSubscriptionEventReceivedHandler : INotificationHandler<NewOctopusSubscriptionEventReceived>
     {

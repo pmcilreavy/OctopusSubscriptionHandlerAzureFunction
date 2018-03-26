@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace OctopusSubscriptionHandler.Models.Slack
+namespace OctopusSubscriptionHandler.Core.Models.Slack
 {
     public class SlackPayload
     {

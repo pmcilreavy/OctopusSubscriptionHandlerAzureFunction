@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OctopusSubscriptionHandler.Utility
+namespace OctopusSubscriptionHandler.Core.Utility
 {
     public class Util
     {

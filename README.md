@@ -5,8 +5,8 @@ Octopus Deploy generates an "event" when things happen (e.g. a failed or success
 
 You can [use an intermediary like Zapier](https://octopus.com/blog/subscriptions) to do the transform but it's a bit of a hassle and the free tier is limited to sending only every 15 minutes. 
 
-This Azure function can be configured as the receiver of the Octopus event and will in-turn parse the json, re-format it into the Slack format and forward on to a nominated Slack web hook url. 
+This project is an Azure function that can be configured as the receiver of the Octopus event and will parse the incoming json, re-format it into the Slack format and forward on to a nominated Slack web hook url. 
+
+> Note: that Slack is what I've chosen to implement so far but it would be easy to implement another destination for the message.
 
 ![Slack Screenshot](https://github.com/pmcilreavy/OctopusSubscriptionHandlerAzureFunction/blob/master/slack_screenshot.png)
-
-I needed a Slack connector but it would be trivial to implement other connectors.

@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace OctopusSubscriptionHandler.Models.Octopus
+namespace OctopusSubscriptionHandler.Core.Models.Octopus
 {
     public class OctopusSubscriptionEvent
     {

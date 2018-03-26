@@ -1,10 +1,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using OctopusSubscriptionHandler.Messages;
+using OctopusSubscriptionHandler.Core.Messages;
 using Serilog;
 
-namespace OctopusSubscriptionHandler.MessageHandlers
+namespace OctopusSubscriptionHandler.Core.MessageHandlers
 {
     public class LogMessageOnNewOctopusSubscriptionEventReceivedHandler : INotificationHandler<NewOctopusSubscriptionEventReceived>
     {
